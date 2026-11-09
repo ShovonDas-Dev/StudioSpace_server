@@ -1,5 +1,5 @@
 import express from 'express';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import 'dotenv/config'
 import cors from "cors"
 const app = express();
@@ -7,8 +7,6 @@ const PORT = 5000
 
 app.use(cors())
 app.use(express.json())
-
-
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
@@ -36,10 +34,21 @@ app.post('/add-studio', async (req , res) => {
 
 
 
-app.get('/allStudio' , async (req , res)=>{
-    const data = await studioCollection.find().toArray()
+app.get('/allStudio', async (req, res) => {
+    const category = req.query.category;
+
+    const filter = category ? { category: category } : {};
+
+    const data = await studioCollection.find(filter).toArray();
+
+    res.send(data);
+});
+
+app.get ('/allStudio/:id' , async (req , res) => {
+    const id = req.params.id
+    console.log(id)
+    const data = await studioCollection.findOne({ _id: new ObjectId(id) })
     res.send(data)
-    //http://localhost:5000/allStudio
 })
 
 
@@ -51,3 +60,6 @@ app.get('/', (req, res) => {
 app.listen(PORT , () => {
     console.log(`server is running now in port at ${PORT}`)
 });
+
+
+
